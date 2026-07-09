@@ -16,6 +16,7 @@ deployment = client.managed_compute_deployments.begin_create_or_update(  # type:
         "sku": {"name": "GlobalManagedCompute", "capacity": 1},
         "properties": {
             "model": "<MODEL_URI>",
+            # NOTE: The Deployment Template URI should use `/labels/latest` not the pinned version
             "deploymentTemplate": "<DEPLOYMENT_TEMPLATE_URI>",
             "acceleratorType": "<ACCELERATOR_TYPE>",
             "versionUpgradeOption": "OnceNewDefaultVersionAvailable",

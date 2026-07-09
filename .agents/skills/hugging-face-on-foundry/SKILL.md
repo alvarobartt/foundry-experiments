@@ -58,7 +58,7 @@ If the model is indeed provided completely as `Qwen/Qwen3.6-27B`, you still need
 
 After the model is validated, you should also check that the model exists on Microsoft Foundry, so for that you need to use the `references/foundry-model.py` so that given the Hugging Face Hub model ID, you run it to check whether the model is available, and if so, which is it's latest version. If not available, consider the model not deployable for the moment, as they will need to reach out to Hugging Face to onboard that model.
 
-Assuming that the provided model was clear enough and is available on the Hugging Face catalog on Microsoft Foundry i.e., the `azure-huggingface` registry, then you need to run `references/foundry-deployment-templates.py` to get the latest version of the current model, as well as the deployment-templates it supports and their information such as the `acceleratorType` and the `description`, to help the user take a decision later on.
+Assuming that the provided model was clear enough and is available on the Hugging Face catalog on Microsoft Foundry i.e., the `azure-huggingface` registry, then you need to run `references/foundry-deployment-templates.py` to get the latest version of the current model, as well as the deployment-templates it supports and their information such as the `acceleratorType` and the `description`, to help the user take a decision later on. Note that the specific version can be ignored as Foundry will always use `/labels/latest`, but it's required to pull the information for a given deployment-template.
 
 Note that as the capacity for Microsoft Foundry is using a global managed quota, it's a bit different and there's no API yet to fetch that information, so let's assume that the capacity is the one mentioned above.
 
