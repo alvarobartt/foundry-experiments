@@ -82,6 +82,8 @@ Choose a deployment name derived from the model ID, e.g. `qwen36-27b-fp8`; it mu
 
 Once they decide, then simply run `references/foundry-deploy.py` with the actual replacements and wait until the endpoint is running on Microsoft Foundry. After deployment, capture the result and note `properties.routes.chatCompletionsScoringPath` when present, since it is useful for debugging even though the preferred user-facing route is the Foundry router.
 
+Additionally, to track the deployment progress since it might take ~15-30 minutes (or more depending on the availability), you can use the `reference/foundry-poll.py` to check the status of the deployment, and poll until "Succeeded".
+
 ### 4. Use
 
 Once deployed, you will be able to use it i.e., send HTTP requests to it. As it's deployed under a router on Microsoft Foundry, you need to send OpenAI-compatible requests to e.g., Chat Completions API via an endpoint that looks like `https://<ACCOUNT_NAME>.services.ai.azure.com/openai/v1`. Then you have `references/foundry-primary-key.py` on how to obtain the primary key to be used to send requests to the endpoint. Note that for chat-completion models that usually means either `/v1/chat/completions` or `/v1/responses` (for reasoning models).
