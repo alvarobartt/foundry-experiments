@@ -30,6 +30,10 @@ Also note that both commands as well as the reference snippets are using mock va
 
 When you ask the user something, make sure that's formatted accordingly so that the user only needs to select one of the available options, or rather reply with free-form text when applicable, but write it in a way so that harnesses can expose that as an option listing to let the user choose more easily. Ensure that you ask as many questions as required.
 
+Do not collapse choices into vague options like "this resource or another one from the subscription". Always show the concrete available choices that you discovered. Assume the user may have many Foundry projects/accounts, including 100 or more, and that matching the user's name, a default subscription, or an apparently likely resource is not enough context to choose safely. If there are many options, still list them all in a concise numbered or tabular form, and let the user pick by number, account name, or free-form override.
+
+At minimum, the user must explicitly choose the target Foundry Account / Project and the deployment-template to use before you deploy. Do not choose either of those on behalf of the user unless they explicitly instructed you to proceed without further questions.
+
 ## Step-by-step
 
 ### 0. Question
@@ -43,8 +47,10 @@ Initially, you will need to ask the following questions, unless those things hav
 - In which Foundry Account / Project you want to deploy the model?
     - For this, prefer a concise listing over raw JSON, e.g. `az cognitiveservices account list --subscription <SUBSCRIPTION_ID> --query "[].{name:name,resourceGroup:resourceGroup,location:location,kind:kind,customSubDomainName:properties.customSubDomainName}" -o table`
     - Note that the `ACCOUNT_NAME` i.e., Foundry project name, will be required later on
+    - Always present every discovered Foundry Account / Project as an explicit option. Include only fields that are actually available from the listing, usually `name`, `resourceGroup`, `location`, `kind`, and `customSubDomainName`.
+    - Ask the user to choose from those options by number or name, or to provide a different subscription/resource if the target is not listed. Do not ask a generic "or another one from the subscription?" question without showing the full discovered list.
 
-Always ask the user for confirmation besides sticking to a resource or the other.
+Always ask the user for confirmation before sticking to a resource or the other, and make that confirmation a choice among the concrete resources found.
 
 ### 1. Validate
 
@@ -70,7 +76,7 @@ Then with the model and the deployment-template URIs you need to select one depl
 
 Note that the only available `acceleratorType` values as of today are A100_80GB, H100_80GB, and MI300_192GB, and their cost is $3.95, $7.91, and $7.91, per accelerator, respectively, so a deployment-template that requires 4 accelerators, its cost will be 4 times that per hour.
 
-Given that running those costs money, you should ask the user which one of the different alternatives they want to deploy, including the trade-off between those if any, otherwise simply mention the difference on the price, unless there's something in each deployment-template description that's relevant for the user to know. Note that there's no need to mention names or versions for the deployment-templates, but rather just capabilities or differences between those for the user to choose, not only the instance it runs on, but also other aspects if applicable as the `--max-model-len`, the `--max-num-seqs`, and such (most of it mentioned in the `description` or in the `environments` of every deployment-template). If there is only one valid deployment-template, skip the template-choice question and only ask the user to confirm the target Foundry resource and the billable accelerator cost.
+Given that running those costs money, you should ask the user which one of the different alternatives they want to deploy, including the trade-off between those if any, otherwise simply mention the difference on the price, unless there's something in each deployment-template description that's relevant for the user to know. Present each valid deployment-template as an explicit option, not as prose that implies a default unless the user objects. Summarize each option using only fields and capabilities that are actually available for that deployment-template. For example, include accelerator type, accelerator count, estimated cost, default-template status, context length, environment variables, runtime tuning, or task/modality only when those values are present or can be inferred directly from the template metadata. If a field is missing, omit it instead of guessing. If there is only one valid deployment-template, still ask the user to confirm that template together with the target Foundry resource and the billable accelerator cost.
 
 If they rather prefer you to go ahead without asking them, then use whichever is the default deployment-template, and if it is either CPU or NVIDIA T4 i.e., not supported on Microsoft Foundry, then out of the existing deployment-templates use the cheapest or most efficient in the following order: A100_80GB, MI300_192GB, and H100_80GB.
 
