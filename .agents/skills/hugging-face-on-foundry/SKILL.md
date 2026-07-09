@@ -3,7 +3,7 @@ name: hugging-face-on-foundry
 description: Deploy a model from the Hugging Face Hub to Microsoft Foundry on Managed Compute.
 ---
 
-Deploy a model to Azure AI Foundry using Managed Compute and the `az` CLI.
+Deploy an open-model from the Hugging Face Hub to Microsoft Foundry using Managed Compute with both the `az` CLI and the Python SDK.
 
 ## When to use
 
@@ -60,7 +60,7 @@ After the model is validated, you should also check that the model exists on Mic
 
 Assuming that the provided model was clear enough and is available on the Hugging Face catalog on Microsoft Foundry i.e., the `azure-huggingface` registry, then you need to run `references/foundry-deployment-templates.py` to get the latest version of the current model, as well as the deployment-templates it supports and their information such as the `acceleratorType` and the `description`, to help the user take a decision later on. Note that the specific version can be ignored as Foundry will always use `/labels/latest`, but it's required to pull the information for a given deployment-template.
 
-If the Azure ML SDK shape differs from the reference script, inspect `model._to_dict()` and look for `default_deployment_template.asset_id`. Some SDK versions may not expose `allowed_deployment_templates` as an attribute. If `client.deployment_templates.get(...)` fails with an internal or unsupported region such as `int`, use the registry REST fallback shown in `references/foundry-deployment-templates.py` instead of stopping.
+If the SDK shape differs from the reference script, inspect `model._to_dict()` and look for `default_deployment_template.asset_id`. Some SDK versions may not expose `allowed_deployment_templates` as an attribute. If `client.deployment_templates.get(...)` fails with an internal or unsupported region such as `int`, use the registry REST fallback shown in `references/foundry-deployment-templates.py` instead of stopping.
 
 Note that as the capacity for Microsoft Foundry is using a global managed quota, it's a bit different and there's no API yet to fetch that information, so let's assume that the capacity is the one mentioned above.
 
