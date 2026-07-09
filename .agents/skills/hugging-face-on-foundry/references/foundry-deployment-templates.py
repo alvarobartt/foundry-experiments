@@ -11,7 +11,6 @@ client = MLClient(credential=credential, registry_name=registry_name)
 
 model_id = "<MODEL_ID>"  # e.g., `Qwen/Qwen3.6-27B`
 version = "<VERSION>"  # e.g., `1`
-region = "eastus"
 model = client.models.get(name=model_id.lower().replace("/", "--"), version=version)
 
 match len(model.allowed_deployment_templates):  # type: ignore
@@ -29,7 +28,7 @@ match len(model.allowed_deployment_templates):  # type: ignore
         headers = {"Authorization": f"Bearer {token}", "Accept": "application/json"}
 
         response = requests.get(
-            f"https://{region}.api.azureml.ms/registrymanagement/v1.0/"
+            "https://eastus.api.azureml.ms/registrymanagement/v1.0/"
             f"registries/{registry_name}/discovery",
             headers=headers,
             timeout=60,
@@ -46,7 +45,7 @@ match len(model.allowed_deployment_templates):  # type: ignore
                 continue
 
             response = requests.get(
-                f"https://{region}.api.azureml.ms/genericasset/v2.0/"
+                "https://eastus.api.azureml.ms/genericasset/v2.0/"
                 f"subscriptions/{registry['subscriptionId']}/"
                 f"resourceGroups/{registry['resourceGroup']}/"
                 f"providers/Microsoft.MachineLearningServices/registries/"
