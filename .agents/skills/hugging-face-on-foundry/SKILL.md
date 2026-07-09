@@ -28,13 +28,13 @@ If something is not installed, suggest the user to install or update / upgrade t
 
 Also note that both commands as well as the reference snippets are using mock values surrounded with <> e.g., <SUBSCRIPTION_ID>, which will need to be replaced with the actual values.
 
-When you ask the user something, make sure that's formatted accordingly so that the user only needs to select one of the available options, or rather reply with free-form text when applicable, but write it in a way so that harnesses can expose that as an option listing to let the user choose more easily. Ensure that you ask as many questions as required.
-
-Do not collapse choices into vague options like "this resource or another one from the subscription". Always show the concrete available choices that you discovered. Assume the user may have many Foundry projects/accounts, including 100 or more, and that matching the user's name, a default subscription, or an apparently likely resource is not enough context to choose safely. If there are many options, still list them all in a concise numbered or tabular form, and let the user pick by number, account name, or free-form override.
+When you ask the user something, make sure that's formatted accordingly so that the user only needs to select one of the available options, or rather reply with free-form text when applicable. And ask as many questions as required, and do not collapse choices into vague options like "this resource or another one from the subscription".
 
 At minimum, the user must explicitly choose the target Foundry Account / Project and the deployment-template to use before you deploy. Do not choose either of those on behalf of the user unless they explicitly instructed you to proceed without further questions.
 
 ## Step-by-step
+
+Go through the following steps one-by-one, and make sure that the user confirms the decision before moving onto the next step.
 
 ### 0. Question
 
@@ -47,10 +47,8 @@ Initially, you will need to ask the following questions, unless those things hav
 - In which Foundry Account / Project you want to deploy the model?
     - For this, prefer a concise listing over raw JSON, e.g. `az cognitiveservices account list --subscription <SUBSCRIPTION_ID> --query "[].{name:name,resourceGroup:resourceGroup,location:location,kind:kind,customSubDomainName:properties.customSubDomainName}" -o table`
     - Note that the `ACCOUNT_NAME` i.e., Foundry project name, will be required later on
-    - Always present every discovered Foundry Account / Project as an explicit option. Include only fields that are actually available from the listing, usually `name`, `resourceGroup`, `location`, `kind`, and `customSubDomainName`.
-    - Ask the user to choose from those options by number or name, or to provide a different subscription/resource if the target is not listed. Do not ask a generic "or another one from the subscription?" question without showing the full discovered list.
 
-Always ask the user for confirmation before sticking to a resource or the other, and make that confirmation a choice among the concrete resources found.
+With the information pulled via the `az` CLI, always ask the user for confirmation before sticking to a resource or the other, and make that confirmation a choice among the resources found, letting the user decide which one to use, unless it's been provided beforehand.
 
 ### 1. Validate
 
