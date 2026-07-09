@@ -41,7 +41,7 @@ Initially, you will need to ask the following questions, unless those things hav
     - Feel free to check the default in `az account show -o tsv --query id`
     - Note that the `SUBSCRIPTION_ID` will be required later on
 - In which Foundry Account / Project you want to deploy the model?
-    - For this, feel free to run `az cognitiveservices account list -o json` if using the active subscription, or rather set `--subscription ...` to whichever ID it is
+    - For this, prefer a concise listing over raw JSON, e.g. `az cognitiveservices account list --subscription <SUBSCRIPTION_ID> --query "[].{name:name,resourceGroup:resourceGroup,location:location,kind:kind,customSubDomainName:properties.customSubDomainName}" -o table`
     - Note that the `ACCOUNT_NAME` i.e., Foundry project name, will be required later on
 
 Always ask the user for confirmation besides sticking to a resource or the other.
@@ -60,6 +60,8 @@ After the model is validated, you should also check that the model exists on Mic
 
 Assuming that the provided model was clear enough and is available on the Hugging Face catalog on Microsoft Foundry i.e., the `azure-huggingface` registry, then you need to run `references/foundry-deployment-templates.py` to get the latest version of the current model, as well as the deployment-templates it supports and their information such as the `acceleratorType` and the `description`, to help the user take a decision later on. Note that the specific version can be ignored as Foundry will always use `/labels/latest`, but it's required to pull the information for a given deployment-template.
 
+If the Azure ML SDK shape differs from the reference script, inspect `model._to_dict()` and look for `default_deployment_template.asset_id`. Some SDK versions may not expose `allowed_deployment_templates` as an attribute. If `client.deployment_templates.get(...)` fails with an internal or unsupported region such as `int`, use the registry REST fallback shown in `references/foundry-deployment-templates.py` instead of stopping.
+
 Note that as the capacity for Microsoft Foundry is using a global managed quota, it's a bit different and there's no API yet to fetch that information, so let's assume that the capacity is the one mentioned above.
 
 ### 3. Deploy
@@ -68,11 +70,13 @@ Then with the model and the deployment-template URIs you need to select one depl
 
 Note that the only available `acceleratorType` values as of today are A100_80GB, H100_80GB, and MI300_192GB, and their cost is $3.95, $7.91, and $7.91, per accelerator, respectively, so a deployment-template that requires 4 accelerators, its cost will be 4 times that per hour.
 
-Given that running those costs money, you should ask the user which one of the different alternatives they want to deploy, including the trade-off between those if any, otherwise simply mention the difference on the price, unless there's something in each deployment-template description that's relevant for the user to know. Note that there's no need to mention names or versions for the deployment-templates, but rather just capabilities or differences between those for the user to choose, not only the instance it runs on, but also other aspects if applicable as the `--max-model-len`, the `--max-num-seqs`, and such (most of it mentioned in the `description` or in the `environments` of every deployment-template).
+Given that running those costs money, you should ask the user which one of the different alternatives they want to deploy, including the trade-off between those if any, otherwise simply mention the difference on the price, unless there's something in each deployment-template description that's relevant for the user to know. Note that there's no need to mention names or versions for the deployment-templates, but rather just capabilities or differences between those for the user to choose, not only the instance it runs on, but also other aspects if applicable as the `--max-model-len`, the `--max-num-seqs`, and such (most of it mentioned in the `description` or in the `environments` of every deployment-template). If there is only one valid deployment-template, skip the template-choice question and only ask the user to confirm the target Foundry resource and the billable accelerator cost.
 
 If they rather prefer you to go ahead without asking them, then use whichever is the default deployment-template, and if it is either CPU or NVIDIA T4 i.e., not supported on Microsoft Foundry, then out of the existing deployment-templates use the cheapest or most efficient in the following order: A100_80GB, MI300_192GB, and H100_80GB.
 
-Once they decide, then simply run `reference/foundry-deploy.py` with the actual replacements and wait until the endpoint is running on Microsoft Foundry.
+Choose a deployment name derived from the model ID, e.g. `qwen36-27b-fp8`; it must be 2 to 64 characters and only include alphanumeric characters, underscores, and hyphens.
+
+Once they decide, then simply run `references/foundry-deploy.py` with the actual replacements and wait until the endpoint is running on Microsoft Foundry. After deployment, capture the result and note `properties.routes.chatCompletionsScoringPath` when present, since it is useful for debugging even though the preferred user-facing route is the Foundry router.
 
 ### 4. Use
 
