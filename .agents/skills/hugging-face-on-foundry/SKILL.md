@@ -18,7 +18,7 @@ Do not use it for Serverless API deployments, as those fall under a different ca
 
 - An Azure subscription with access to Microsoft Foundry
 - A Microsoft Foundry resource
-- `az` CLI installed and be logged in with `az login`
+- `az` CLI installed, be logged in with `az login`, and `ml` extension installed
 - Python 3.10 or higher installed
 - `pip install azure-identity azure-ai-ml azure-mgmt-cognitiveservices openai`
 - `azure-ai-ml` needs to be 1.34.0 or greater
@@ -26,6 +26,18 @@ Do not use it for Serverless API deployments, as those fall under a different ca
 It's recommended when applicable to use `uv` and an environment. So unless there's already an active environment in `.venv`, then create it as `uv venv --python 3.11` and activate it as `source .venv/bin/activate` for Bash.
 
 ## Step-by-step
+
+### 0. Question
+
+Initially, you will need to ask the following questions, unless those things have already been provided:
+
+- Could you provide the Hugging Face Hub ID of the model you want to deploy?
+- Which Azure subscription should be used?
+    - Feel free to check the default in `az account show -o tsv --query id`
+    - Note that the `SUBSCRIPTION_ID` will be required later on
+- In which Foundry Account / Project you want to deploy the model?
+    - For this, feel free to run `az cognitiveservices account list -o json` if using the active subscription, or rather set `--subscription ...` to whichever ID it is
+    - Note that the `ACCOUNT_NAME` i.e., Foundry project name, will be required later on
 
 ### 1. Validate
 
@@ -45,7 +57,7 @@ Note that as the capacity for Microsoft Foundry is using a global managed quota,
 
 ### 3. Deploy
 
-Then with the model and the deployment-template URIs you need to select one deployment-template to use, which can come in multiple flavours depending on the capabilities as e.g,. context-length, or the instance/s it uses.
+Then with the model and the deployment-template URIs you need to select one deployment-template to use, which can come in multiple flavours depending on the capabilities as e.g., context-length, or the instance/s it uses.
 
 Note that the only available `acceleratorType` values as of today are A100_80GB, H100_80GB, and MI300_192GB, and their cost is $3.95, $7.91, and $7.91, per accelerator, respectively, so a deployment-template that requires 4 accelerators, its cost will be 4 times that per hour.
 
