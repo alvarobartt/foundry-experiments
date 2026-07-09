@@ -28,7 +28,7 @@ If something is not installed, suggest the user to install or update / upgrade t
 
 Also note that both commands as well as the reference snippets are using mock values surrounded with <> e.g., <SUBSCRIPTION_ID>, which will need to be replaced with the actual values.
 
-When you ask the user something, make sure that's formatted accordingly so that the user only needs to select one of the available options, or rather reply with free-form text when applicable, but write it in a way so that harnesses can expose that as an option listing to let the user choose more easily.
+When you ask the user something, make sure that's formatted accordingly so that the user only needs to select one of the available options, or rather reply with free-form text when applicable, but write it in a way so that harnesses can expose that as an option listing to let the user choose more easily. Ensure that you ask as many questions as required.
 
 ## Step-by-step
 
