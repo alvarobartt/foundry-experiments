@@ -20,10 +20,13 @@ Do not use it for Serverless API deployments, as those fall under a different ca
 - A Microsoft Foundry resource
 - `az` CLI installed, be logged in with `az login`, and `ml` extension installed
 - Python 3.10 or higher installed
-- `pip install azure-identity azure-ai-ml azure-mgmt-cognitiveservices openai`
-- `azure-ai-ml` needs to be 1.34.0 or greater
+- `pip install azure-identity "azure-ai-ml>=1.34.0" "azure-mgmt-cognitiveservices>=15.0.0b2" huggingface_hub openai`
 
-It's recommended when applicable to use `uv` and an environment. So unless there's already an active environment in `.venv`, then create it as `uv venv --python 3.11` and activate it as `source .venv/bin/activate` for Bash.
+It's recommended when applicable to use `uv` with an environment, and install Python packages with `uv pip install ...` instead of `pip install ...`. So unless there's already an active environment in `.venv`, then create it as `uv venv --python 3.11` and activate it as `source .venv/bin/activate` for Bash.
+
+If something is not installed, suggest the user to install or update / upgrade those, rather than moving on without any of those installed.
+
+Also note that both commands as well as the reference snippets are using mock values surrounded with <> e.g., <SUBSCRIPTION_ID>, which will need to be replaced with the actual values.
 
 ## Step-by-step
 
@@ -38,6 +41,8 @@ Initially, you will need to ask the following questions, unless those things hav
 - In which Foundry Account / Project you want to deploy the model?
     - For this, feel free to run `az cognitiveservices account list -o json` if using the active subscription, or rather set `--subscription ...` to whichever ID it is
     - Note that the `ACCOUNT_NAME` i.e., Foundry project name, will be required later on
+
+Always ask the user for confirmation besides sticking to a resource or the other.
 
 ### 1. Validate
 
@@ -61,7 +66,7 @@ Then with the model and the deployment-template URIs you need to select one depl
 
 Note that the only available `acceleratorType` values as of today are A100_80GB, H100_80GB, and MI300_192GB, and their cost is $3.95, $7.91, and $7.91, per accelerator, respectively, so a deployment-template that requires 4 accelerators, its cost will be 4 times that per hour.
 
-Given that running those costs money, you should ask the user which one of the different alternatives they want to deploy, including the trade-off between those if any, otherwise simply mention the difference on the price, unless there's something in each deployment-template description that's relevant for the user to know.
+Given that running those costs money, you should ask the user which one of the different alternatives they want to deploy, including the trade-off between those if any, otherwise simply mention the difference on the price, unless there's something in each deployment-template description that's relevant for the user to know. Note that there's no need to mention names or versions for the deployment-templates, but rather just capabilities or differences between those for the user to choose, not only the instance it runs on, but also other aspects if applicable as the `--max-model-len`, the `--max-num-seqs`, and such (most of it mentioned in the `description` or in the `environments` of every deployment-template).
 
 If they rather prefer you to go ahead without asking them, then use whichever is the default deployment-template, and if it is either CPU or NVIDIA T4 i.e., not supported on Microsoft Foundry, then out of the existing deployment-templates use the cheapest or most efficient in the following order: A100_80GB, MI300_192GB, and H100_80GB.
 
@@ -74,7 +79,7 @@ Once deployed, you will be able to use it i.e., send HTTP requests to it. As it'
 ```bash
 curl https://<ACCOUNT_NAME>.services.ai.azure.com/openai/v1/chat/completions \
     -H "Content-Type: application/json" \
-    -H "Authorization: Bearer $AZURE_API_KEY" \
+    -H "Authorization: Bearer $(az cognitiveservices account keys list --subscription <SUBSCRIPTION_ID> --resource-group <RESOURCE_GROUP> --name <ACCOUNT_NAME> -o tsv --query key1)" \
     -d '{"model":"<DEPLOYMENT_NAME>","messages":[{"role":"user","content":"How does Hugging Face make money?"}],"stream":true}'
 ```
 
@@ -83,3 +88,7 @@ Alternatively, you can also run `references/foundry-chat.py` for the chat comple
 ## Troubleshooting
 
 As all the models in the `azure-huggingface` catalog go through an extensive testing process those shouldn't fail on deployment time, but if those fail on inference time make sure to report those. If otherwise, those do fail on deployment time, note that the issue might come due to provisioning or allocating the instances.
+
+## References
+
+- ["/goal GLM 5.2 on Microsoft Foundry with AMD MI300"](https://alvarobartt.com/goal-glm-5.2-on-foundry)
